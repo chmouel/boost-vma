@@ -8,18 +8,18 @@
 # times sont le nombre de repetition
 # percentage sont le percentate a laquelle vous avez la VMA
 # repos et le temp de repo pour cette repetition
+from datetime import timedelta
 
-VMAS = xrange(14, 17)
+VMAS = xrange(13, 21)
 
 # 3 *
 WORKOUT = [[3, 90, 1200, "1m 45s de repos"],
            [1, 85, 5000, "3mn de repos"],
            [8, 100, 200, "45s de recup active"]]
 
-WORKOUT = [[6, 90, 400, "recup 200m allure footing"],
-           [6, 90, 300, "recup 100m de repos"],
-           [6, 105, 200, "recupe 2'00 a l'arret"]]
-
+# WORKOUT = [[6, 90, 400, "recup 200m allure footing"],
+#            [6, 90, 300, "recup 100m de repos"],
+#            [6, 105, 200, "recupe 2'00 a l'arret"]]
 
 # 3x1000 90% / 2x4000 85%
 # WORKOUT = [[3, 90, 1000, "1'15 de repos"],
@@ -58,6 +58,16 @@ def calculer_vitesse(vma, percent):
     r = round(vma * percent) / 100
     return cl_floatz(r)
 
+
+def fmt_minutes(minutes):
+    fmt = "{minutes}'{seconds}"
+    seconds = 60 * minutes
+    tdelta = timedelta(seconds=seconds)
+    d = {"days": tdelta.days}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return fmt.format(**d)
+
 for work in WORKOUT:
     (times, percent, distance, rest) = work
 
@@ -72,8 +82,9 @@ for work in WORKOUT:
         if distance > 400:
             print("400m => %s //" % (calculer_distance(vma, percent, 400))),
 
-        print("Speed => %skph" %
-              (calculer_vitesse(vma, percent)))
+        vitesse = calculer_vitesse(vma, percent)
+        print("(%skph/%s)" % (vitesse, (fmt_minutes(1 / float(vitesse) * 60))))
+
 
     print("")
     if rest:
