@@ -9,23 +9,30 @@
 # percentage sont le percentate a laquelle vous avez la VMA
 # repos et le temp de repo pour cette repetition
 
-VMAS = [12, 13, 14,
-        15, 16,
-        17, 18,
-        19, 20]
+VMAS = xrange(14, 17)
 
-WORKOUT = [[3, 90, 1000, "45s de repos"],
-           [2, 85, 2000, "30s de repos"],
-           [1, 80, 3000, False]]
+# 3 *
+WORKOUT = [[3, 90, 1200, "1m 45s de repos"],
+           [1, 85, 5000, "3mn de repos"],
+           [8, 100, 200, "45s de recup active"]]
 
-
-WORKOUT = [[3, 90, 1000, "1'15 de repos"],
-           [2, 85, 4000, "1'30s de repos"]]
+WORKOUT = [[6, 90, 400, "recup 200m allure footing"],
+           [6, 90, 300, "recup 100m de repos"],
+           [6, 105, 200, "recupe 2'00 a l'arret"]]
 
 
-def cl_float(x):
-    x = str(x)
-    return x[:x.rfind(".")]
+# 3x1000 90% / 2x4000 85%
+# WORKOUT = [[3, 90, 1000, "1'15 de repos"],
+#            [2, 85, 4000, "1'30s de repos"]]
+
+# 10x400 90% VMA
+#WORKOUT = [[10, 90, 400, "1m de repos"]]
+
+
+cl_float = lambda x: str(x)[:str(x).rfind(".")]
+
+cl_floatz = lambda x: str(x)[:str(x).rfind(".")] \
+            if str(x).endswith('.0') else str(x)
 
 
 def mytime(temp):
@@ -34,11 +41,10 @@ def mytime(temp):
     minute = round(stemps - (stemps % 60)) / 60
 
     if minute > 0:
-        result = result + cl_float(minute) + " mn "
+        result = result + cl_float(minute) + "mn"
     second = (round((stemps % 60) * 10)) / 10
-    if second < 0:
-        second = 00
-    result = result + cl_float(round(second)) + " s"
+    if second > 0:
+        result = result + cl_floatz(round(second)) + "s"
     return result
 
 
@@ -49,7 +55,8 @@ def calculer_distance(vma, percent, distance):
 
 
 def calculer_vitesse(vma, percent):
-    return round(vma * percent) / 100
+    r = round(vma * percent) / 100
+    return cl_floatz(r)
 
 for work in WORKOUT:
     (times, percent, distance, rest) = work
@@ -58,14 +65,21 @@ for work in WORKOUT:
     print (dstr % (times, distance, percent))
     print ("-" * len(dstr)) + "\n"
     for vma in VMAS:
-        print("%d de VMA => %s, 400m => %s %skph" %
-              (vma,
-               calculer_distance(vma, percent, distance),
-               calculer_distance(vma, percent, 400),
-               calculer_vitesse(vma, percent)
-              ))
+        print("%dVMA => %s //" % (vma,
+                                  calculer_distance(
+                                      vma, percent, distance))),
+
+        if distance > 400:
+            print("400m => %s //" % (calculer_distance(vma, percent, 400))),
+
+        print("Speed => %skph" %
+              (calculer_vitesse(vma, percent)))
 
     print("")
     if rest:
-        print("%s entre session" % (rest))
+        if times > 1:
+            entre = 'entre session'
+        else:
+            entre = ''
+        print("%s %s" % (rest, entre))
     print ("\n")
